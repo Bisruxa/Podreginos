@@ -1,4 +1,5 @@
 import Order from './Order'
+import PizzaOfTheDay from './PizzaOfTheDay';
 function App() {
 
   return (
@@ -6,6 +7,7 @@ function App() {
       <div>
         <h1 className="logo">Padre Gino's Pizza</h1>
         <Order/>
+        <PizzaOfTheDay/>
       </div>
     </>
   );

@@ -3,6 +3,7 @@ import fastifyStatic from "@fastify/static";
 import path from "path";
 import { fileURLToPath } from "url";
 import { AsyncDatabase } from "promised-sqlite3";
+import fastifyCors from "@fastify/cors";
 
 const server = fastify({
   logger: {
@@ -10,6 +11,11 @@ const server = fastify({
       target: "pino-pretty",
     },
   },
+});
+
+server.register(fastifyCors, {
+  origin: "http://localhost:5173",
+  methods: ["GET", "POST", "PUT", "DELETE"],
 });
 
 const PORT = process.env.PORT || 3000;

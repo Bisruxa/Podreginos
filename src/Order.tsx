@@ -1,9 +1,29 @@
-import { useState } from "react";
+import { useState} from "react";
+import { useQuery } from "@tanstack/react-query";
 import Pizza from "./Pizza";
-type PizzaSize ="S" | "M" |"L"
+import fetchPizzas from "./api/utils/fetch";
+import type { pizzaProps } from "./Pizza";
+type PizzaSize = "S" | "M" | "L";
+
 export default function Order() {
-  const [pizzaType,setPizzaType]= useState("pepperoni")
-  const [pizzaSize, setPizzaSize] = useState<PizzaSize>("S")
+  const [selectedPizzaId, setSelectedPizzaId] = useState<number | null>(null);  
+  const [pizzaSize, setPizzaSize] = useState<PizzaSize>("S");
+  const {
+    data: pizzas,
+    error,
+    isLoading,
+  } = useQuery({
+    queryKey: ["pizzas"],
+    queryFn: fetchPizzas,
+  });
+
+  if (isLoading) return <p>Loading....</p>;
+  if (error) return <p>Error: {error.message}</p>;
+console.log(`selected pizza Id ${selectedPizzaId}`)
+  const selectedPizza =
+    pizzas.find((pizza: pizzaProps) => pizza.id === selectedPizzaId) ||
+    pizzas[0];
+    console.log(`selected pizza ${selectedPizza.name}`)
   return (
     <div className="order">
       <h2>Create Order</h2>
@@ -13,12 +33,14 @@ export default function Order() {
             <label htmlFor="pizza-type">Pizza Type</label>
             <select
               name="pizza-type"
-              value={pizzaType}
-              onChange={(e) => setPizzaType(e.target.value)}
+              value={selectedPizzaId ||""}
+              onChange={(e) => setSelectedPizzaId(Number(e.target.value))}
             >
-              <option value="pepperoni">The pepperoni pizza</option>
-              <option value="hawaiian">The hawaiian pizza</option>
-              <option value="big meat">The meat pizza</option>
+              {pizzas.map((pizza: pizzaProps) => (
+                <option value={pizza.id} key={pizza.id}>
+                  {pizza.name}
+                </option>
+              ))}
             </select>
           </div>
           <div>
@@ -61,12 +83,16 @@ export default function Order() {
           </div>
           <button type="submit">Add to Cart</button>
           <div className="order-pizza">
-            <Pizza
-              name="pepperoni"
-              description="another pizza"
-              image="/public/assets/pepperoni.webp"
-            />
-            <p>13.3</p>
+            {selectedPizza && (
+              <div>
+                <Pizza
+                  name={selectedPizza.name}
+                  description={selectedPizza.description}
+                  // image={selectedPizza.image}
+                />
+                <p>13.3</p>
+              </div>
+            )}
           </div>
         </div>
       </form>
